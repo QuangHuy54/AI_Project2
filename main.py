@@ -1,4 +1,5 @@
 from itertools import combinations
+from functools import cmp_to_key
 
 
 def read_input_from_file(path):
@@ -7,7 +8,10 @@ def read_input_from_file(path):
     n = int(file.readline())  # Số mệnh đề có trong KB
     KB = set()
     for i in range(n):
-        KB.add(set(file.readline()[:-1].split(' OR ')))
+        if i == n - 1:
+            KB.add(frozenset(file.readline().split(' OR ')))
+        else:
+            KB.add(frozenset(file.readline()[:-1].split(' OR ')))
     file.close()
     return KB, alpha
 
@@ -32,20 +36,33 @@ def PL_RESOLVE(clause1, clause2):
                 if literal_2 != complementary_literal(literal1):
                     resolvent.add(literal_2)
             if check_tautological_clause(resolvent) == False:  # Chỉ xét các clause không là một tautology
-                resolvents.add(resolvent)
+                resolvents.add(frozenset(resolvent))
     return resolvents
 
-def compare(literal_1,literal_2): #So sánh thứ tự 2 literal khi sort
-    if len(literal_1)==len(literal_2):
-        return literal_1[0]-literal_2[0]
-    elif len(literal_1)==2:
-        return literal_1[1]-literal_2[0]
+
+def compare_string(string_1, string_2):  # So sánh 2 string
+    if string_1 < string_2:
+        return -1
+    elif string_1 > string_2:
+        return 1
+    return 0
+
+
+def compare(literal_1, literal_2):  # So sánh thứ tự 2 literal khi sort
+    if len(literal_1) == len(literal_2) and len(literal_1) == 1:
+        return compare_string(literal_1[0], literal_2[0])
+    elif len(literal_1) == len(literal_2):
+        return compare_string(literal_1[1], literal_2[1])
+    elif len(literal_1) == 2:
+        return compare_string(literal_1[1], literal_2[0])
     else:
-        return literal_1[0]-literal_2[1]
+        return compare_string(literal_1[0], literal_2[1])
+
+
 def PL_RESOLUTION(KB, alpha):
     clauses = KB.union(negation_of_clause(alpha))
     new = set()
-    empty_clause = set()
+    empty_clause = frozenset()
     result = []
     entail = True
     while True:
@@ -53,7 +70,7 @@ def PL_RESOLUTION(KB, alpha):
         for (clause1, clause2) in list(list_pair_of_clauses):
             resolvents = PL_RESOLVE(clause1, clause2)
             new = new.union(resolvents)
-        new_clauses = new.intersection(clauses)
+        new_clauses = new.difference(clauses)
         result.append(new_clauses)
         if len(new_clauses) == 0:  # Không phát sinh mệnh đề mới
             entail = False
@@ -62,18 +79,46 @@ def PL_RESOLUTION(KB, alpha):
             return result, entail
         clauses.update(new)
 
-def output_set_of_clauses(set_of_clauses):
-    for clauses in set_of_clauses:
+
+def export_output_to_file(path, result, entail):
+    file = open(path, "w")
+    for set_of_clauses in result:
+        file.write(str(len(set_of_clauses)) + "\n")
+        for clause in set_of_clauses:
+            editable_clause = list(clause)
+            sorted(editable_clause, key=cmp_to_key(compare))
+            if len(editable_clause) == 0:
+                file.write('{}' + "\n")
+            else:
+                file.write(' OR '.join(editable_clause) + "\n")
+    if entail == True:
+        file.write('Yes')
+    else:
+        file.write('No')
+    file.close()
+
 
 def negation_of_clause(clause):
     result = set()
     for literal in clause:
-        result.add(complementary_literal(literal))
+        negation_of_literal = complementary_literal(literal)
+        new_clause = set()
+        new_clause.add(negation_of_literal)
+        result.add(frozenset(new_clause))
     return result
 
 
-def complementary_literal(literal): #
+def main():
+    KB, alpha = read_input_from_file("input.txt")
+    result, entail = PL_RESOLUTION(KB, alpha)
+    export_output_to_file("output.txt", result, entail)
+
+
+def complementary_literal(literal: str):
     if literal[0] == '-':
         return literal[1:]
     else:
-        return '-' + literal
+        return str('-' + literal)
+
+
+main()
