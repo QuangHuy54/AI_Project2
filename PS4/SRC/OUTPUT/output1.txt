@@ -1,0 +1,28 @@
+8
+-E
+F OR -K
+-C
+E OR K
+-C OR F
+B OR C
+C OR E
+K OR T
+13
+E OR F
+C
+E OR T
+-K
+B OR E
+E
+C OR F
+K
+B OR F
+F OR K
+B
+B OR T
+F OR T
+3
+{}
+T
+F
+YES

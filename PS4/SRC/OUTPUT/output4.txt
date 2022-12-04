@@ -1,0 +1,39 @@
+7
+A
+-B OR -K OR P
+B OR -K
+-A OR -B
+B OR -D
+-A OR -D OR -K OR P
+-B OR -F OR P
+15
+-B OR P
+-K OR P
+-A OR -D
+-F OR -K OR P
+B
+-B
+-D OR -F OR P
+-A OR -D OR -K
+-A OR -K OR P
+-A OR -K
+-B OR -K
+-A OR -D OR P
+-D OR -F OR -K OR P
+-D OR -K OR P
+-B OR -F
+13
+-F OR P
+-F
+-D OR -F
+-D OR -K
+-K
+-A
+-D OR P
+-F OR -K
+-D
+{}
+P
+-A OR P
+-D OR -F OR -K
+YES
